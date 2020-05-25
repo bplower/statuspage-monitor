@@ -46,3 +46,19 @@ Once you're ready, you can build the full release version by running:
 ```
 make build
 ```
+
+### Troubleshooting
+
+- `make run` gives an error message about `pkg_resources.py2_warn`
+  You may see the following error while trying to run `make run` after building:
+  ```
+  File "pkg_resources/__init__.pyc", line 86, in <module>
+  ModuleNotFoundError: No module named 'pkg_resources.py2_warn'
+  2020-05-25 05:16:55.759 StatusPage Monitor[96205:49278291] StatusPage Monitor Error
+  make: *** [run] Error 255
+  ```
+
+  This is due to [an issue with setuptools](https://github.com/pypa/setuptools/issues/1963), but can be worked around by updating setuptools:
+  ```
+  pip install --upgrade 'setuptools<45.0.0'
+  ```
