@@ -125,7 +125,9 @@ class StatusPageBarApp(rumps.App):
                 rumps.MenuItem('Reload', callback=self.hook_reload_preferences)
             ]
         }
-        # return rumps.MenuItem('Preferences', callback=self.hook_open_preferences)
+
+    def about_menu_item(self):
+        return rumps.MenuItem('About', callback=self.hook_about)
 
     def quit_menu_item(self):
         return rumps.MenuItem('Quit', callback=self.hook_quit)
@@ -138,6 +140,9 @@ class StatusPageBarApp(rumps.App):
 
     def hook_reload_preferences(self, _):
         self.reload_preferences()
+
+    def hook_about(self, _):
+        webbrowser.open('https://github.com/bplower/statuspage-notifier')
 
     def hook_quit(self, _):
         rumps.quit_application()
@@ -164,6 +169,7 @@ class StatusPageBarApp(rumps.App):
             None,
             self.refresh_menu_item(),
             self.preferences_menu_item(),
+            self.about_menu_item(),
             self.quit_menu_item()
         ])
 
@@ -232,7 +238,7 @@ class Settings(object):
         return profile_list
 
 def main(debug_mode=True):
-    APP_NAME = 'Settings Page Notifier'
+    APP_NAME = 'StatusPage Monitor'
     if debug_mode is False:
         settings_path = None
     else:
