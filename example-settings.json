@@ -1,0 +1,16 @@
+{
+    "profiles": [
+        {
+            "name": "Butthub",
+            "hostname": "www.githubstatus.com"
+        },
+        {
+            "name": "My Flakey Service",
+            "hostname": "http://localhost:8088"
+        },
+        {
+            "name": "Digital Ocean",
+            "hostname": "https://status.digitalocean.com/"
+        }
+    ]
+}

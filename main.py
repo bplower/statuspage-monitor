@@ -1,3 +1,4 @@
+import os
 import os.path
 import subprocess
 import json
@@ -80,6 +81,8 @@ class StatusPageProfile(object):
         elif value.startswith('http://'):
             self.proto = 'http'
             value = value.replace('http://', '')
+        else:
+            self.proto = 'https'
         self.hostname = value
 
     @property
@@ -130,7 +133,7 @@ class StatusPageBarApp(rumps.App):
     def hook_quit(self, _):
         rumps.quit_application()
 
-    @rumps.timer(5)
+    @rumps.timer(60)
     def periodic_update(self, _):
         self.refresh_statuses()
 
@@ -155,8 +158,7 @@ class StatusPageBarApp(rumps.App):
         ])
 
     def open_preferences(self):
-        settings_filepath = os.path.join(rumps.application_support(self.name), self.SETTINGS_FILENAME)
-        subprocess.run(['open', settings_filepath], check=True)
+        subprocess.run(['open', self.settings.settings_path()], check=True)
 
     def add_profiles(self, profile_list):
         for i in profile_list:
@@ -167,25 +169,63 @@ class StatusPageBarApp(rumps.App):
             setattr(self, 'profile_list', {})
         self.profile_list[profile.name] = profile
 
-    def validate_settings(self):
-        with self.open(self.SETTINGS_FILENAME, 'w+') as file_wr:
-            try:
-                json.loads(file_wr.read())
-                return True
-            except:
-                # If the content is invalid, then we need to open the file so the user can fix it
-                file_wr.close()
-                self.open_preferences()
-                return False
+    def add_settings(self, settings):
+        if hasattr(self, 'settings') is False:
+            setattr(self, 'settings', {})
+        self.settings = settings
 
-def main(debug_mode=True):
-    profiles = [
-        StatusPageProfile('Github', 'https://www.githubstatus.com/'),
-        StatusPageProfile('My Flakey Service', 'http://localhost:8088/'),
-        StatusPageProfile('Digital Ocean', 'https://status.digitalocean.com/'),
-    ]
-    app = StatusPageBarApp('Settings Page Notifier', title=None, icon=StatusController.ICON_NONE, quit_button=None)
-    app.add_profiles(profiles)
+class Settings(object):
+    SETTINGS_FILE_NAME = '.statuspage_monitor.json'
+
+    def __init__(self, app_name, autoload=False, settings_path=None):
+        self._json_content = None
+        self._settings_path_override = settings_path
+        self.app_name = app_name
+        if autoload is True:
+            self.load()
+
+    def settings_path(self):
+        if self._settings_path_override is None:
+            return os.path.join(rumps.application_support(self.app_name), self.SETTINGS_FILE_NAME)
+        else:
+            return self._settings_path_override
+
+    def load(self):
+        try:
+            # Open the file to be read in, but create it if it doesn't already exist. Had to
+            # get tricky here becuase the normal `open(filepath, 'w+')` would truncate the
+            # file which was extremely useless. Got this from here:
+            # https://stackoverflow.com/questions/28918302/open-file-for-random-write-without-truncating
+            with os.fdopen(os.open(self.settings_path(), os.O_RDWR | os.O_CREAT), 'w+') as sfile:
+                self._json_content = json.load(sfile)
+        except json.JSONDecodeError:
+            subprocess.run(['open', self.settings_path()], check=True)
+            raise Exception("Failed to load json settings")
+
+    def profiles(self):
+        if self._json_content is None:
+            raise Exception("Cannot list profiles, settings file not yet loaded.")
+        profile_list = []
+        for jsono in self._json_content.get('profiles', []):
+            if jsono.get('name', None) is None:
+                raise Exception("Profile missing required field 'name'")
+            if jsono.get('hostname', None) is None:
+                raise Exception("Profile missing required field 'hostname'")
+            profile_list.append(
+                StatusPageProfile(jsono['name'], jsono['hostname'])
+            )
+        return profile_list
+
+def main(debug_mode=False):
+    APP_NAME = 'Settings Page Notifier'
+    if debug_mode is False:
+        settings_path = None
+    else:
+        settings_path = "./example-settings.json"
+    settings = Settings(APP_NAME, autoload=True, settings_path=settings_path)
+    app = StatusPageBarApp(APP_NAME, title=None, icon=StatusController.ICON_NONE, quit_button=None)
+    app.add_settings(settings)
+    app.add_profiles(settings.profiles())
     app.refresh_statuses()
     app.run(debug=debug_mode)
 
