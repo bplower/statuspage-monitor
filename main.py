@@ -119,7 +119,13 @@ class StatusPageBarApp(rumps.App):
         return rumps.MenuItem('Refresh', callback=self.hook_refresh_statuses)
 
     def preferences_menu_item(self):
-        return rumps.MenuItem('Preferences', callback=self.hook_open_preferences)
+        return {
+            'Preferences': [
+                rumps.MenuItem('Edit', callback=self.hook_open_preferences),
+                rumps.MenuItem('Reload', callback=self.hook_reload_preferences)
+            ]
+        }
+        # return rumps.MenuItem('Preferences', callback=self.hook_open_preferences)
 
     def quit_menu_item(self):
         return rumps.MenuItem('Quit', callback=self.hook_quit)
@@ -129,6 +135,9 @@ class StatusPageBarApp(rumps.App):
 
     def hook_open_preferences(self, _):
         self.open_preferences()
+
+    def hook_reload_preferences(self, _):
+        self.reload_preferences()
 
     def hook_quit(self, _):
         rumps.quit_application()
@@ -140,7 +149,7 @@ class StatusPageBarApp(rumps.App):
     def refresh_statuses(self):
         statuses = []
         menu_items = []
-        for p in self.profile_list.values():
+        for p in self.profiles_dict.values():
             statuses.append(p.refresh_status())
             menu_items.append(p.as_menu_item())
 
@@ -160,16 +169,20 @@ class StatusPageBarApp(rumps.App):
     def open_preferences(self):
         subprocess.run(['open', self.settings.settings_path()], check=True)
 
-    def add_profiles(self, profile_list):
-        for i in profile_list:
-            self.add_profile(i)
+    def reload_preferences(self):
+        self.settings.load()
+        self.set_profiles(self.settings.profiles())
+        self.refresh_statuses()
 
-    def add_profile(self, profile):
-        if hasattr(self, 'profile_list') is False:
-            setattr(self, 'profile_list', {})
-        self.profile_list[profile.name] = profile
+    def set_profiles(self, profiles_list):
+        if hasattr(self, 'profiles_dict') is False:
+            setattr(self, 'profiles_dict', {})
+        profiles_dict = {}
+        for i in profiles_list:
+            profiles_dict[i.name] = i
+        self.profiles_dict = profiles_dict
 
-    def add_settings(self, settings):
+    def set_settings(self, settings):
         if hasattr(self, 'settings') is False:
             setattr(self, 'settings', {})
         self.settings = settings
@@ -216,7 +229,7 @@ class Settings(object):
             )
         return profile_list
 
-def main(debug_mode=False):
+def main(debug_mode=True):
     APP_NAME = 'Settings Page Notifier'
     if debug_mode is False:
         settings_path = None
@@ -224,8 +237,8 @@ def main(debug_mode=False):
         settings_path = "./example-settings.json"
     settings = Settings(APP_NAME, autoload=True, settings_path=settings_path)
     app = StatusPageBarApp(APP_NAME, title=None, icon=StatusController.ICON_NONE, quit_button=None)
-    app.add_settings(settings)
-    app.add_profiles(settings.profiles())
+    app.set_settings(settings)
+    app.set_profiles(settings.profiles())
     app.refresh_statuses()
     app.run(debug=debug_mode)
 

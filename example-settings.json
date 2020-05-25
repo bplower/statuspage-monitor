@@ -1,7 +1,7 @@
 {
     "profiles": [
         {
-            "name": "Butthub",
+            "name": "Github",
             "hostname": "www.githubstatus.com"
         },
         {
