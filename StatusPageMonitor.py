@@ -153,9 +153,10 @@ class StatusPageBarApp(rumps.App):
             statuses.append(p.refresh_status())
             menu_items.append(p.as_menu_item())
 
-        # Reset the menubar icon
-        worst_status = functools.reduce(lambda a, b: a if a > b else b, statuses)
-        self.icon = StatusController.icon_for_status(worst_status)
+        if statuses != []:
+            # Reset the menubar icon
+            worst_status = functools.reduce(lambda a, b: a if a > b else b, statuses)
+            self.icon = StatusController.icon_for_status(worst_status)
         # Redeclare the menu items
         self.menu.clear()
         self.menu.update([
@@ -212,8 +213,9 @@ class Settings(object):
             with os.fdopen(os.open(self.settings_path(), os.O_RDWR | os.O_CREAT), 'w+') as sfile:
                 self._json_content = json.load(sfile)
         except json.JSONDecodeError:
-            subprocess.run(['open', self.settings_path()], check=True)
-            raise Exception("Failed to load json settings")
+            self._json_content = {'profiles': []}
+            # subprocess.run(['open', self.settings_path()], check=True)
+            # raise Exception("Failed to load json settings")
 
     def profiles(self):
         if self._json_content is None:
