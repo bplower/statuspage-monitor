@@ -16,7 +16,11 @@ DATA_FILES = [
         'icons/warning.png'
     ])
 ]
-OPTIONS = {}
+OPTIONS = {
+    'plist': {
+        'LSUIElement': True
+    }
+}
 
 setup(
     name='StatusPage Monitor',
