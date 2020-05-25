@@ -1,6 +1,6 @@
 # StatusPage Monitor
 
-This is a lightweight MacOS menubar app for watching the status of services that use StatusPage. When a monitored service logs an incident, the icon will change to indicate the severity. Clicking the entry for the service will take you to the configured StatusPage for more information about the status.
+This is a lightweight MacOS menubar app for watching the status of services that use [StatusPage](https://www.statuspage.io/). When a monitored service logs an incident, the icon will change to indicate the severity. Clicking the entry for the service will take you to the configured StatusPage for more information about the status.
 
 <p align="center">
   <img width="50%" src="https://i.imgur.com/OI5xYse.png">
@@ -22,7 +22,7 @@ Example preferences file:
 }
 ```
 
-The value for the hostname field must be the domain name serving the [StatusPage](https://www.statuspage.io/) site. If you're unsure if you have the correct hostname, you can test it by browsing directly to the status api page: `https://foo.bar.baz/api/v2/status.json`. If you get a valid json response, then you likely have the correct hostname.
+The value for the hostname field must be the domain name serving the StatusPage site. If you're unsure if you have the correct hostname, you can test it by browsing directly to the status api page: `https://foo.bar.baz/api/v2/status.json`. If you get a valid json response, then you likely have the correct hostname.
 
 ## Development
 
@@ -49,8 +49,7 @@ make build
 
 ### Troubleshooting
 
-- `make run` gives an error message about `pkg_resources.py2_warn`
-  You may see the following error while trying to run `make run` after building:
+- `make run` after building gives an error message about `pkg_resources.py2_warn`:
   ```
   File "pkg_resources/__init__.pyc", line 86, in <module>
   ModuleNotFoundError: No module named 'pkg_resources.py2_warn'
