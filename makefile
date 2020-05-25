@@ -16,4 +16,4 @@ build: clean ## Builds for release (faster)
 	python setup.py py2app
 
 run: ## Runs the app
-	./dist/StatusPageMonitor.app/Contents/MacOS/StatusPageMonitor
+	./dist/StatusPage\ Monitor.app/Contents/MacOS/StatusPage\ Monitor
