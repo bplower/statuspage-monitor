@@ -2,6 +2,10 @@
 
 This is a lightweight MacOS menubar app for watching the status of services that use StatusPage. When a monitored service logs an incident, the icon will change to indicate the severity. Clicking the entry for the service will take you to the configured StatusPage for more information about the status.
 
+<p align="center">
+  <img width="50%" src="https://i.imgur.com/OI5xYse.png">
+</p>
+
 ## Usage
 
 ### Preferences
