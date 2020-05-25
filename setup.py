@@ -19,6 +19,7 @@ DATA_FILES = [
 OPTIONS = {}
 
 setup(
+    name='StatusPage Monitor',
     app=APP,
     data_files=DATA_FILES,
     options={'py2app': OPTIONS},
