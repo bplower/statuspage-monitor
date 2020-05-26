@@ -17,6 +17,7 @@ DATA_FILES = [
     ])
 ]
 OPTIONS = {
+    'iconfile':'icons/app_icon.icns',
     'plist': {
         'LSUIElement': True
     }

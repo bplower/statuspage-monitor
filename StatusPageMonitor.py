@@ -253,10 +253,12 @@ def startup_items_list():
     return items.split(', ')
 
 def startup_items_add():
+    print("Enabling automatic startup")
     app_path = os.path.dirname(os.path.abspath(__file__)).split('Contents')[0]
     return run_osascript('to make login item at end with properties {path:"' + app_path + '", hidden:false}')
 
 def startup_items_remove():
+    print("Disabling automatic startup")
     return run_osascript('to delete login item "StatusPage Monitor"')
 
 def run_osascript(script):
