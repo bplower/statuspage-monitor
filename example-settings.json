@@ -1,4 +1,5 @@
 {
+    "startup_enabled": false,
     "profiles": [
         {
             "name": "Github",

@@ -204,6 +204,10 @@ class Settings(object):
         if autoload is True:
             self.load()
 
+    @property
+    def startup_enabled(self):
+        return self._json_content.get('startup_enabled', False)
+
     def settings_path(self):
         if self._settings_path_override is None:
             return os.path.join(rumps.application_support(self.app_name), self.SETTINGS_FILE_NAME)
@@ -220,8 +224,7 @@ class Settings(object):
                 self._json_content = json.load(sfile)
         except json.JSONDecodeError:
             self._json_content = {'profiles': []}
-            # subprocess.run(['open', self.settings_path()], check=True)
-            # raise Exception("Failed to load json settings")
+        self.set_startup_item()
 
     def profiles(self):
         if self._json_content is None:
@@ -236,6 +239,28 @@ class Settings(object):
                 StatusPageProfile(jsono['name'], jsono['hostname'])
             )
         return profile_list
+
+    def set_startup_item(self):
+        currently_enabled = 'StatusPage Monitor' in startup_items_list()
+        print("Currently enabled: {}, current status: {}".format(currently_enabled, self.startup_enabled))
+        if currently_enabled is True and self.startup_enabled is False:
+            startup_items_remove()
+        elif currently_enabled is False and self.startup_enabled is True:
+            startup_items_add()
+
+def startup_items_list():
+    items = run_osascript('to get the name of every login item')
+    return items.split(', ')
+
+def startup_items_add():
+    app_path = os.path.dirname(os.path.abspath(__file__)).split('Contents')[0]
+    return run_osascript('to make login item at end with properties {path:"' + app_path + '", hidden:false}')
+
+def startup_items_remove():
+    return run_osascript('to delete login item "StatusPage Monitor"')
+
+def run_osascript(script):
+    return subprocess.check_output(['osascript', '-e', 'tell application "System Events" ' + script]).decode()
 
 def main(debug_mode=True):
     APP_NAME = 'StatusPage Monitor'

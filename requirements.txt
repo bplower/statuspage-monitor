@@ -1,2 +1,3 @@
 rumps
 requests
+setuptools<45.0.0
